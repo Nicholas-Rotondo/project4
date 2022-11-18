@@ -1,0 +1,32 @@
+1. no packet loss, no ACK loss
+    python3 receiver.py --port 50007 --pktloss noloss --ackloss noloss
+
+2. packet loss everyn with N = 3, no ACK loss
+    python3 receiver.py --port 50007 --pktloss everyn --pktlossN 3 --ackloss noloss
+
+3. packet loss everyn with N = 10, no ACK loss
+    python3 receiver.py --port 50007 --pktloss everyn --pktlossN 10 --ackloss noloss
+
+4. no packet loss, ACK loss everyn with N = 3
+    python3 receiver.py --port 50007 --pktloss noloss --ackloss everyn --acklossN 3
+
+5. no packet loss, ACK loss everyn with N = 10
+    python3 receiver.py --port 50007 --pktloss noloss --ackloss everyn --acklossN 10
+
+6. packet loss alteveryn with N = 8, no ACK loss
+    python3 receiver.py --port 50007 --pktloss alteveryn --pktlossN 8 --ackloss noloss
+
+7. no packet loss, ACK loss alteveryn with N = 8
+    python3 receiver.py --port 50007 --pktloss noloss --ackloss alteveryn --acklossN 8
+
+8. packet loss iid with N = 5, no ACK loss
+    python3 receiver.py --port 50007 --pktloss iid --pktlossN 5 --ackloss noloss
+
+9. no packet loss, ACK loss iid with N = 5
+    python3 receiver.py --port 50007 --pktloss noloss --ackloss iid --acklossN 5
+
+10. packet loss everyn with N = 3, ACK loss alteveryn with N = 4
+    python3 receiver.py --port 50007 --pktloss everyn --pktlossN 5 --ackloss alteveryn --acklossN 4
+
+11. start the sender first, give a few seconds, then start the receiver (with any of the loss behaviors
+mentioned above)
