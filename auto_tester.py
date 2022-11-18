@@ -1,8 +1,8 @@
 from threading import Thread
 import subprocess
 import time
-def send_tester():
-    port = 50007
+def send_tester(start_port):
+    port = start_port
     for _ in range(10):
     
         send_data = subprocess.run("python3 sender.py --port " + str(port), capture_output = True, shell = True)
@@ -12,7 +12,7 @@ def send_tester():
         
         time.sleep(.1)
 
-def rec_tester():
+def rec_tester(start_port):
     commands = []
     commands.append(["python3 receiver.py --port ", " --pktloss noloss --ackloss noloss"])
     commands.append(["python3 receiver.py --port ", " --pktloss everyn --pktlossN 3 --ackloss noloss"])
@@ -25,9 +25,11 @@ def rec_tester():
     commands.append(["python3 receiver.py --port ", " --pktloss noloss --ackloss iid --acklossN 5"])
     commands.append(["python3 receiver.py --port ", " --pktloss everyn --pktlossN 5 --ackloss alteveryn --acklossN 4"])
 
-    port = 50007
+    port = start_port
     for comm in commands:
-        command = comm[0] + str(port) + comm[1]
+
+        #remove --ooo_enabled if testing stop and wait
+        command = comm[0] + str(port) + f'{" --ooo_enabled"}' + comm[1]
         print(f"trying command => {command}")
         rec_data = subprocess.run(command, capture_output = True, shell = True)
         
@@ -58,9 +60,9 @@ if __name__ == "__main__":
         errors = diff_data.stderr.decode("utf-8")
         print( f'Invalid result in running diff: { errors }, output: {diff_data.stdout.decode("utf")}' )
         print("diff works!")
-
-    t1 = Thread(target=rec_tester)
-    t2 = Thread(target=send_tester)
+    port = 51007
+    t1 = Thread(target=rec_tester, args = [port])
+    t2 = Thread(target=send_tester, args = [port])
     t1.start()
     t2.start()
     t1.join()

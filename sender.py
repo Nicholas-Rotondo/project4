@@ -169,15 +169,49 @@ def send_reliable(cs, filedata, receiver_binding, win_size):
 
     # TODO: This is where you will make your changes. You
     # will not need to change any other parts of this file.
-    while win_left_edge < INIT_SEQNO + content_len:
-        next_win_left_edge = transmit_one()
-        can_read, can_write, exceps = select.select([cs], [], [], RTO)
-        if(len(can_read) > 0):
-            data_from_receiver, receiver_addr = cs.recvfrom(100)
-            ack_msg = Msg.deserialize(data_from_receiver)
-            print("Received {}".format(str(ack_msg)))
-            win_left_edge = ack_msg.ack
 
+    #transmit window
+    final_ack = INIT_SEQNO + content_len
+    first_to_tx = transmit_entire_window_from(win_left_edge)
+
+    #while not all data has been transmitted
+    while win_left_edge < final_ack:
+       
+        #can_read, can_write, exceps = select.select([cs], [], [], RTO)
+
+
+        #if we have an ack waiting for us
+        #get all acks
+        highest_ack = -1
+        while(len(select.select([cs], [], [], RTO)[0]) > 0):
+            data_from_receiver, receiver_addr = cs.recvfrom(100)
+            
+            ack_msg = Msg.deserialize(data_from_receiver)
+            ack_num = ack_msg.ack
+            highest_ack = max(highest_ack, ack_num)
+            print("Received {}".format(str(highest_ack)))
+            
+            
+        #slide window if fresh data was acked
+        if(highest_ack >= first_to_tx):
+            win_right_edge =  min(final_ack, win_right_edge + (highest_ack - win_left_edge))
+            win_left_edge = highest_ack
+            first_to_tx = transmit_entire_window_from(win_left_edge)
+        #acked some but not all data in window, resend those
+        elif(highest_ack >= win_left_edge):
+            win_right_edge =  min(final_ack, win_right_edge + (highest_ack - win_left_edge))
+            win_left_edge = highest_ack
+            transmit_one()
+        #in case highest ack did not improve, resend the first thing
+        else:
+            transmit_one()
+        #RTO, transmit one
+        if(highest_ack == -1):
+            print("RTO, transmitting one")
+            transmit_one()
+        print(f"{win_left_edge=}, {win_right_edge=}, {final_ack=}")
+        
+            
         
 
 if __name__ == "__main__":
