@@ -1,7 +1,7 @@
 from threading import Thread
 import subprocess
 import time
-def rec_tester():
+def send_tester():
     port = 50007
     for _ in range(10):
     
@@ -12,7 +12,7 @@ def rec_tester():
         
         time.sleep(.1)
 
-def send_tester():
+def rec_tester():
     commands = []
     commands.append(["python3 receiver.py --port ", " --pktloss noloss --ackloss noloss"])
     commands.append(["python3 receiver.py --port ", " --pktloss everyn --pktlossN 3 --ackloss noloss"])
